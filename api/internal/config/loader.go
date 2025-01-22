@@ -28,5 +28,7 @@ func LoadConfig(filename ...string) (*Config, error) {
 	config.Database.Password = MustGetEnvVar("DATABASE_PASSWORD")
 	config.Database.Name = MustGetEnvVar("DATABASE_NAME")
 
+	config.Auth.Secret = MustGetEnvVar("AUTH_SECRET")
+
 	return &config, nil
 }

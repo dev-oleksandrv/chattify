@@ -13,7 +13,12 @@ type DatabaseConfig struct {
 	Name     string
 }
 
+type AuthConfig struct {
+	Secret string
+}
+
 type Config struct {
+	Auth     AuthConfig
 	Server   ServerConfig
 	Database DatabaseConfig
 }

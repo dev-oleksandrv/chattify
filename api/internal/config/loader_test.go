@@ -19,4 +19,5 @@ func TestLoadConfig_WithTestEnv(t *testing.T) {
 	assert.Equal(t, "postgres", config.Database.Username)
 	assert.Equal(t, "postgres", config.Database.Password)
 	assert.Equal(t, "test-db", config.Database.Name)
+	assert.Equal(t, "secret", config.Auth.Secret)
 }

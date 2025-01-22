@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 
+	"github.com/dev-oleksandrv/chattify-api/internal/auth"
 	"github.com/dev-oleksandrv/chattify-api/internal/config"
 	"github.com/dev-oleksandrv/chattify-api/internal/database"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -26,5 +30,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	slog.Info("program is running")
+	e := echo.New()
+
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus: true,
+		LogURI:    true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			slog.Info("REQUEST", "uri", v.URI, "status", v.Status)
+			return nil
+		},
+	}))
+
+	apiGroup := e.Group("/api")
+
+	auth.AttachRouter(apiGroup, cfg, db)
+
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.Server.Port)))
 }
