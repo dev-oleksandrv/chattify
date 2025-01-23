@@ -8,9 +8,9 @@
 
 <div class="w-full max-w-[420px] space-y-4 rounded-xl border p-4 py-6">
 	<div class="text-center">
-		<p class="text-xl font-semibold">Join <span class="text-brand">Chattify</span> Now!</p>
+		<p class="text-xl font-semibold">Sign In into <span class="text-brand">Chattify</span></p>
 
-		<p class="text-sm text-gray-700">Register into the application to use all the features.</p>
+		<p class="text-sm text-gray-700">Confirm your user to continue using Chattify features.</p>
 	</div>
 
 	<form method="POST" class="space-y-4" use:enhance>
@@ -20,26 +20,16 @@
 		</InputContainer>
 
 		<InputContainer>
-			<Label for="username">Username</Label>
-			<Input id="username" name="username" type="text" placeholder="johndoe" />
-		</InputContainer>
-
-		<InputContainer>
 			<Label for="password">Password</Label>
 			<Input id="password" name="password" type="password" />
 		</InputContainer>
 
-		<InputContainer>
-			<Label for="confirmPassword">Confirm Password</Label>
-			<Input id="confirmPassword" name="confirmPassword" type="password" />
-		</InputContainer>
-
 		<div>
-			<Button type="submit" class="w-full">Sign Up</Button>
+			<Button type="submit" class="w-full">Sign In</Button>
 		</div>
 	</form>
 
 	<p class="text-center text-sm text-gray-500">
-		Already have an account? <a href="/login" class="text-brand">Sign In</a>
+		Don't have an account? <a href="/register" class="text-brand">Sign Up</a>
 	</p>
 </div>

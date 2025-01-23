@@ -1,28 +1,24 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { registerUserSchema } from '../../../schemas/user-validation';
+import { loginUserSchema } from '../../../schemas/user-validation';
 
 export const actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
 
-		const { success, error, data } = await registerUserSchema.safeParseAsync({
+		const { success, error, data } = await loginUserSchema.safeParseAsync({
 			email: formData.get('email'),
-			username: formData.get('username'),
-			password: formData.get('password'),
-			confirmPassword: formData.get('confirmPassword')
+			password: formData.get('password')
 		});
 
 		if (!success || error || !data) {
 			return fail(400, { error: true });
 		}
 
-		const { confirmPassword: _, ...dto } = data;
-
 		try {
-			const result = await fetch('http://localhost:8000/api/auth/register', {
+			const result = await fetch('http://localhost:8000/api/auth/login', {
 				method: 'POST',
-				body: JSON.stringify(dto),
+				body: JSON.stringify(data),
 				headers: { 'Content-Type': 'application/json' }
 			});
 			const parsed = await result.json();
