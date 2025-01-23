@@ -1,6 +1,13 @@
 <script lang="ts">
+	import { setContext } from 'svelte';
 	import '../app.css';
-	let { children } = $props();
+	import type { LayoutProps } from './$types';
+
+	let { children, data }: LayoutProps = $props();
+
+	setContext('user', () => data.user);
 </script>
 
-{@render children()}
+<div class="flex h-screen w-screen flex-col overflow-visible">
+	{@render children()}
+</div>
