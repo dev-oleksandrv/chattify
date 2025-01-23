@@ -2,7 +2,6 @@ package auth
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/dev-oleksandrv/chattify-api/internal/user"
 	"github.com/labstack/echo/v4"
@@ -41,17 +40,14 @@ func (h *AuthHandler) LoginWithCreds(c echo.Context) error {
 }
 
 func (h *AuthHandler) VerifyUser(c echo.Context) error {
-	header := c.Request().Header.Get("Authorization")
-	if header == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized, "no authorization header")
-	}
+	rawHeader := c.Request().Header.Get("Authorization")
 
-	parts := strings.SplitN(header, " ", 2)
-	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+	token, err := ParseAuthorizationHeader(rawHeader)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid authorization header")
 	}
 
-	user, err := h.authService.VerifyUserWithToken(parts[1])
+	user, err := h.authService.VerifyUserWithToken(token)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, "token is invalid")
 	}

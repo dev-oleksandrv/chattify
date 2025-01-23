@@ -8,8 +8,9 @@ import (
 	"github.com/dev-oleksandrv/chattify-api/internal/auth"
 	"github.com/dev-oleksandrv/chattify-api/internal/config"
 	"github.com/dev-oleksandrv/chattify-api/internal/database"
+	"github.com/dev-oleksandrv/chattify-api/internal/middleware"
+	"github.com/dev-oleksandrv/chattify-api/internal/room"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -30,20 +31,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	authRouter := auth.NewAuthRouter(cfg, db)
+	roomRouter := room.NewRoomRouter(db)
+
 	e := echo.New()
-
-	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus: true,
-		LogURI:    true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			slog.Info("REQUEST", "uri", v.URI, "status", v.Status)
-			return nil
-		},
-	}))
-
 	apiGroup := e.Group("/api")
+	authRouter.AttachRouter(apiGroup)
 
-	auth.AttachRouter(apiGroup, cfg, db)
+	protectedGroup := apiGroup.Group("/protected")
+	protectedGroup.Use(authRouter.Middleware)
+	roomRouter.AttachRouter(protectedGroup, cfg, db)
+
+	e.Use(middleware.CreateLoggerMiddleware())
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.Server.Port)))
 }
