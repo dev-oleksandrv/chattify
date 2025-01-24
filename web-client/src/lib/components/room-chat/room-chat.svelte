@@ -3,7 +3,7 @@
 	import { sendMessageAction } from '$lib/ws/websocket-actions';
 	import { WsEventType } from '$lib/ws/websocket-events';
 	import { roomMessages } from '../../../store/room-store';
-	import type { RoomMessage } from '../../../types/room-types';
+	import { RoomMessageType, type RoomMessage } from '../../../types/room-types';
 	import Input from '../ui/input.svelte';
 
 	interface RoomChatProps {
@@ -36,9 +36,13 @@
 <div class={containerClassName}>
 	<div class="flex flex-1 flex-col justify-end gap-2 overflow-auto px-4 py-2">
 		{#each messages as msg}
-			<div class="rounded-xl border p-2">
-				<p class="text-sm">{msg.content}</p>
-			</div>
+			{#if msg.type === RoomMessageType.System}
+				<p class="text-xs text-gray-500">{msg.content}</p>
+			{:else if msg.type === RoomMessageType.User}
+				<div class="rounded-xl border p-2">
+					<p class="text-sm">{msg.content}</p>
+				</div>
+			{/if}
 		{/each}
 	</div>
 
