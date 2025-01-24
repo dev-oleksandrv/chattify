@@ -38,12 +38,14 @@ func main() {
 	wsHandler := ws.NewWsHandler()
 
 	e := echo.New()
+	e.GET("/ws", wsHandler.HandlerFunc)
+
 	apiGroup := e.Group("/api")
 	authRouter.AttachRouter(apiGroup)
 
 	protectedGroup := apiGroup.Group("/protected")
 	protectedGroup.Use(authRouter.Middleware)
-	protectedGroup.GET("/ws", wsHandler.HandlerFunc)
+	protectedGroup.GET("/ws/handshake", wsHandler.HandshakeHandlerFunc)
 	roomRouter.AttachRouter(protectedGroup, cfg, db)
 
 	e.Use(middleware.CreateLoggerMiddleware())
