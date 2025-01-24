@@ -131,9 +131,28 @@ func (h *WsHandler) Run() {
 		case cs := <-h.join:
 			slog.Info("joined")
 			h.rooms[cs.Room.Id].AddClient(cs)
+
+			event := &WsJoinedLobbyEvent{
+				WsBaseEvent: WsBaseEvent{Type: JoinedLobbyEventType},
+				UserId:      cs.UserId,
+			}
+			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
+				Sender: cs.UserId,
+				Raw:    event.ToRaw(),
+			}
+
 		case cs := <-h.leave:
 			slog.Info("leaved")
 			h.rooms[cs.Room.Id].RemoveClient(cs)
+
+			event := &WsLeavedLobbyEvent{
+				WsBaseEvent: WsBaseEvent{Type: LeavedLobbyEventType},
+				UserId:      cs.UserId,
+			}
+			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
+				Sender: cs.UserId,
+				Raw:    event.ToRaw(),
+			}
 
 			if h.rooms[cs.Room.Id].IsEmpty() {
 				delete(h.rooms, cs.Room.Id)

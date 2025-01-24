@@ -13,7 +13,9 @@ type WsRoomSession struct {
 
 func (s *WsRoomSession) Read() {
 	for {
-		s.HandleMessage(<-s.Message)
+		msg := <-s.Message
+		slog.Info("msg read", "msg", msg)
+		s.HandleMessage(msg)
 	}
 }
 
@@ -27,6 +29,10 @@ func (s *WsRoomSession) HandleMessage(msg *WsClientMessage) {
 	switch baseEvent.Type {
 	case SendMessageEventType:
 		s.HandleSendMessageEvent(msg)
+	case JoinedLobbyEventType:
+		s.HandleJoinedLobbyEvent(msg)
+	case LeavedLobbyEventType:
+		s.HandleLeavedLobbyEvent(msg)
 	}
 
 }
@@ -87,4 +93,24 @@ func (s *WsRoomSession) HandleSendMessageEvent(msg *WsClientMessage) {
 	}
 
 	s.BroadcastOthers(serializedResponse, msg.Sender)
+}
+
+func (s *WsRoomSession) HandleJoinedLobbyEvent(msg *WsClientMessage) {
+	var event WsJoinedLobbyEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on joined lobby event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	s.BroadcastOthers(event.ToRaw(), msg.Sender)
+}
+
+func (s *WsRoomSession) HandleLeavedLobbyEvent(msg *WsClientMessage) {
+	var event WsLeavedLobbyEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on leaved lobby event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	s.BroadcastOthers(event.ToRaw(), msg.Sender)
 }
