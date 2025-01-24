@@ -1,4 +1,9 @@
 <script lang="ts">
+	import { wsManager } from '$lib/ws/websocket';
+	import { sendMessageAction } from '$lib/ws/websocket-actions';
+	import { WsEventType } from '$lib/ws/websocket-events';
+	import { roomMessages } from '../../../store/room-store';
+	import type { RoomMessage } from '../../../types/room-types';
 	import Input from '../ui/input.svelte';
 
 	interface RoomChatProps {
@@ -6,16 +11,40 @@
 	}
 
 	let { containerClassName }: RoomChatProps = $props();
+
+	let messages: RoomMessage[] = $state([]);
+	let inputValue = $state('');
+
+	roomMessages.subscribe((val) => (messages = val));
+
+	const handleSubmit = (event: SubmitEvent) => {
+		event.preventDefault();
+
+		if (!inputValue) {
+			return;
+		}
+
+		sendMessageAction(wsManager, {
+			type: WsEventType.SendMessage,
+			content: inputValue
+		});
+
+		inputValue = '';
+	};
 </script>
 
 <div class={containerClassName}>
-	<div class="flex-1">
-		<!-- messages here -->
+	<div class="flex flex-1 flex-col justify-end gap-2 overflow-auto px-4 py-2">
+		{#each messages as msg}
+			<div class="rounded-xl border p-2">
+				<p class="text-sm">{msg.content}</p>
+			</div>
+		{/each}
 	</div>
 
 	<div class="border-t px-4 py-2">
-		<form>
-			<Input type="text" class="w-full" />
+		<form onsubmit={handleSubmit}>
+			<Input type="text" class="w-full" bind:value={inputValue} />
 			<p class="text-xs text-gray-300">Press 'Enter' to send</p>
 		</form>
 	</div>
