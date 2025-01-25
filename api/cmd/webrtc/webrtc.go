@@ -1,14 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"log/slog"
 	"net"
+	"os"
 
+	"github.com/dev-oleksandrv/chattify-api/internal/config"
 	"github.com/pion/turn/v2"
 )
 
 func main() {
-	realm := "turn.chattify.com"
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		slog.Error("failed to load environment", "err", err)
+		os.Exit(1)
+	}
+
 	authHandler := func(username, realm string, srcAddr net.Addr) ([]byte, bool) {
 		return turn.GenerateAuthKey("pre_user", realm, "pre_password"), true
 		// TODO: Implement auth for webrtc server
@@ -18,13 +27,13 @@ func main() {
 		// return nil, false
 	}
 
-	udpListener, err := net.ListenPacket("udp4", ":3478")
+	udpListener, err := net.ListenPacket("udp4", fmt.Sprintf(":%d", cfg.Turn.Port))
 	if err != nil {
 		log.Fatalf("Failed to create UDP listener: %v", err)
 	}
 
 	server, err := turn.NewServer(turn.ServerConfig{
-		Realm:       realm,
+		Realm:       cfg.Turn.Realm,
 		AuthHandler: authHandler,
 		PacketConnConfigs: []turn.PacketConnConfig{
 			{
@@ -47,6 +56,6 @@ func main() {
 		}
 	}()
 
-	log.Println("TURN server is running on :3478")
+	log.Printf("TURN server is running on :%d", cfg.Turn.Port)
 	select {}
 }

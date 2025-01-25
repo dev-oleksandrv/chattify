@@ -17,8 +17,14 @@ type AuthConfig struct {
 	Secret string
 }
 
+type TurnConfig struct {
+	Realm string
+	Port  int
+}
+
 type Config struct {
 	Auth     AuthConfig
 	Server   ServerConfig
 	Database DatabaseConfig
+	Turn     TurnConfig
 }

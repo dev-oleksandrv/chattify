@@ -30,5 +30,8 @@ func LoadConfig(filename ...string) (*Config, error) {
 
 	config.Auth.Secret = MustGetEnvVar("AUTH_SECRET")
 
+	config.Turn.Realm = MustGetEnvVar("TURN_REALM")
+	config.Turn.Port = MustGetEnvVarInt("TURN_PORT")
+
 	return &config, nil
 }
