@@ -14,7 +14,6 @@ type WsRoomSession struct {
 func (s *WsRoomSession) Read() {
 	for {
 		msg := <-s.Message
-		slog.Info("msg read", "msg", msg)
 		s.HandleMessage(msg)
 	}
 }
@@ -33,6 +32,14 @@ func (s *WsRoomSession) HandleMessage(msg *WsClientMessage) {
 		s.HandleJoinedLobbyEvent(msg)
 	case LeavedLobbyEventType:
 		s.HandleLeavedLobbyEvent(msg)
+	case JoinBroadcastEventType:
+		s.HandleJoinBroadcastEvent(msg)
+	case RtcSendAnswerEventType:
+		s.HandleRtcSendAnswerEvent(msg)
+	case RtcSendOfferEventType:
+		s.HandleRtcSendOfferEvent(msg)
+	case RtcSendCandidateEventType:
+		s.HandleRtcSendCandidateEvent(msg)
 	}
 
 }
@@ -61,6 +68,13 @@ func (s *WsRoomSession) BroadcastOthers(msg []byte, filterId uint) {
 		default:
 			slog.Warn("send queue full, dropping message", "id", c.UserId)
 		}
+	}
+}
+
+func (s *WsRoomSession) BroadcastTarget(msg []byte, targetId uint) {
+	slog.Info("broadcast target", "msg", msg, "target", targetId)
+	if cs, ok := s.Clients[targetId]; ok {
+		cs.SendQueue <- msg
 	}
 }
 
@@ -113,4 +127,82 @@ func (s *WsRoomSession) HandleLeavedLobbyEvent(msg *WsClientMessage) {
 	}
 
 	s.BroadcastOthers(event.ToRaw(), msg.Sender)
+}
+
+func (s *WsRoomSession) HandleJoinBroadcastEvent(msg *WsClientMessage) {
+	var event WsJoinBroadcastEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on leaved lobby event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	msg.Client.Status = WsClientSessionStatusJoinedBroadcast
+
+	response := &WsJoinedBroadcastEvent{
+		WsBaseEvent: WsBaseEvent{Type: JoinedBroadcastEventType},
+		UserId:      msg.Sender,
+	}
+
+	for id, c := range s.Clients {
+		if id == msg.Sender || c.Status == WsClientSessionStatusJoinedLobby {
+			continue
+		}
+		select {
+		case c.SendQueue <- response.ToRaw():
+			slog.Info("broadcast to", "id", c.UserId)
+		default:
+			slog.Warn("send queue full, dropping message", "id", c.UserId)
+		}
+	}
+}
+
+func (s *WsRoomSession) HandleRtcSendOfferEvent(msg *WsClientMessage) {
+	var event WsRtcSendOfferEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on send rtc offer event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	response := &WsRtcReceiveOfferEvent{
+		WsBaseEvent: WsBaseEvent{Type: RtcReceiveOfferEventType},
+		Target:      event.Target,
+		Sender:      msg.Sender,
+		Sdp:         event.Sdp,
+	}
+
+	s.BroadcastTarget(response.ToRaw(), event.Target)
+}
+
+func (s *WsRoomSession) HandleRtcSendAnswerEvent(msg *WsClientMessage) {
+	var event WsRtcSendAnswerEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on rtc answer event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	response := &WsRtcReceiveAnswerEvent{
+		WsBaseEvent: WsBaseEvent{Type: RtcReceiveAnswerEventType},
+		Target:      event.Target,
+		Sender:      msg.Sender,
+		Sdp:         event.Sdp,
+	}
+
+	s.BroadcastTarget(response.ToRaw(), event.Target)
+}
+
+func (s *WsRoomSession) HandleRtcSendCandidateEvent(msg *WsClientMessage) {
+	var event WsRtcSendCandidateEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on rtc candidate event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	response := &WsRtcReceiveCandidateEvent{
+		WsBaseEvent: WsBaseEvent{Type: RtcReceiveCandidateEventType},
+		Target:      event.Target,
+		Sender:      msg.Sender,
+		Candidate:   event.Candidate,
+	}
+
+	s.BroadcastTarget(response.ToRaw(), event.Target)
 }

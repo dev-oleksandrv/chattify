@@ -139,6 +139,7 @@ func (h *WsHandler) Run() {
 			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
 				Sender: cs.UserId,
 				Raw:    event.ToRaw(),
+				Client: cs,
 			}
 
 		case cs := <-h.leave:
@@ -152,6 +153,7 @@ func (h *WsHandler) Run() {
 			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
 				Sender: cs.UserId,
 				Raw:    event.ToRaw(),
+				Client: cs,
 			}
 
 			if h.rooms[cs.Room.Id].IsEmpty() {

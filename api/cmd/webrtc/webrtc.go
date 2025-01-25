@@ -48,5 +48,5 @@ func main() {
 	}()
 
 	log.Println("TURN server is running on :3478")
-	select {} // Keep the server running
+	select {}
 }

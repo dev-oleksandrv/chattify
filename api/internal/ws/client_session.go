@@ -31,6 +31,7 @@ func (c *WsClientSession) Read() {
 		c.Room.Message <- &WsClientMessage{
 			Sender: c.UserId,
 			Raw:    msg,
+			Client: c,
 		}
 	}
 }

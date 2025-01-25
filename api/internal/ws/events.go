@@ -15,6 +15,28 @@ type WsReceiveMessageEvent struct {
 	Content string `json:"content"`
 }
 
+type WsJoinBroadcastEvent struct {
+	WsBaseEvent
+}
+
+type WsJoinedBroadcastEvent struct {
+	WsBaseEvent
+	UserId uint `json:"userId"`
+}
+
+func (e *WsJoinedBroadcastEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsLeavedBroadcastEvent struct {
+	WsBaseEvent
+	UserId uint `json:"userId"`
+}
+
+func (e *WsLeavedBroadcastEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
 type WsJoinedLobbyEvent struct {
 	WsBaseEvent
 	UserId uint `json:"userId"`
@@ -30,6 +52,57 @@ type WsLeavedLobbyEvent struct {
 }
 
 func (e *WsLeavedLobbyEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsRtcSendOfferEvent struct {
+	WsBaseEvent
+	Target uint   `json:"target"`
+	Sdp    string `json:"sdp"`
+}
+
+type WsRtcSendAnswerEvent struct {
+	WsBaseEvent
+	Target uint   `json:"target"`
+	Sdp    string `json:"sdp"`
+}
+
+type WsRtcSendCandidateEvent struct {
+	WsBaseEvent
+	Target    uint   `json:"target"`
+	Candidate string `json:"candidate"`
+}
+
+type WsRtcReceiveOfferEvent struct {
+	WsBaseEvent
+	Target uint   `json:"target"`
+	Sender uint   `json:"sender"`
+	Sdp    string `json:"sdp"`
+}
+
+func (e *WsRtcReceiveOfferEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsRtcReceiveAnswerEvent struct {
+	WsBaseEvent
+	Target uint   `json:"target"`
+	Sender uint   `json:"sender"`
+	Sdp    string `json:"sdp"`
+}
+
+func (e *WsRtcReceiveAnswerEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsRtcReceiveCandidateEvent struct {
+	WsBaseEvent
+	Target    uint   `json:"target"`
+	Sender    uint   `json:"sender"`
+	Candidate string `json:"candidate"`
+}
+
+func (e *WsRtcReceiveCandidateEvent) ToRaw() []byte {
 	return e.WsBaseEvent.ToRaw(e)
 }
 
