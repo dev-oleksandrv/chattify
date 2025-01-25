@@ -1,14 +1,16 @@
 <script lang="ts">
+	import { cn } from '$lib/utils/cn';
 	import { onMount } from 'svelte';
 
 	interface Props {
-		id: number;
 		stream: MediaStream;
+		containerClassName?: string;
+		label?: string;
 	}
 
 	let videoEl: HTMLVideoElement;
 
-	const { id, stream }: Props = $props();
+	const { stream, containerClassName, label }: Props = $props();
 
 	onMount(() => {
 		if (videoEl && stream) {
@@ -17,8 +19,14 @@
 	});
 </script>
 
-<div>
-	<video muted bind:this={videoEl} autoplay class="h-[200px] w-[200px]">
+<div class={cn('relative overflow-hidden rounded-xl', containerClassName)}>
+	<video muted bind:this={videoEl} autoplay class="h-full w-full object-cover">
 		<track kind="captions" />
 	</video>
+
+	{#if !!label}
+		<div class="absolute left-2 top-2 rounded-full bg-white px-4 py-1">
+			<p class="text-xs">{label}</p>
+		</div>
+	{/if}
 </div>
