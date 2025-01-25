@@ -34,6 +34,10 @@ build:
 	@echo "Building the application..."
 	$(GO_CMD) build -o $(OUT) $(SRC)
 
+build-webrtc:
+	@echo "Building WebRTC server..."
+	$(GO_CMD) build -o $(WEBRTC_OUT) $(WEBRTC_SRC)
+
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(OUT)
