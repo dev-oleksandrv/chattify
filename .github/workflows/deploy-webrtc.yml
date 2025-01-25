@@ -1,0 +1,24 @@
+name: Deploy TURN Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy TURN Dockerfile
+        run: cp api/deployment/Dockerfile.webrtc api/Dockerfile
+
+      - name: Deploy to Railway
+        uses: railwayapp/railway-action@v2
+        with:
+          projectId: ${{ secrets.RAILWAY_PROJECT_ID }}
+          serviceId: ${{ secrets.RAILWAY_WEBRTC_SERVICE_ID }}
+          envToken: ${{ secrets.RAILWAY_TOKEN }}
