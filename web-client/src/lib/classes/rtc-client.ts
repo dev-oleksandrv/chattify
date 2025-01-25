@@ -1,5 +1,6 @@
 import { sendCandidateAction } from '$lib/ws/websocket-actions';
 import { addRemoteStream } from '../../store/room-store';
+import { PUBLIC_TURN_URL } from '$env/static/public';
 
 export class RTCClient {
 	private stream: MediaStream | null = null;
@@ -9,7 +10,7 @@ export class RTCClient {
 		const pc = new RTCPeerConnection({
 			iceServers: [
 				{
-					urls: 'turn:localhost:3478',
+					urls: PUBLIC_TURN_URL,
 					username: 'test',
 					credential: 'test'
 				}

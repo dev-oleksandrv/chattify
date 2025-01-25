@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { loginUserSchema } from '../../../schemas/user-validation';
+import { PUBLIC_API_URL } from '$env/static/public';
 
 export const actions = {
 	default: async (event) => {
@@ -16,7 +17,7 @@ export const actions = {
 		}
 
 		try {
-			const result = await fetch('http://localhost:8000/api/auth/login', {
+			const result = await fetch(`${PUBLIC_API_URL}/api/auth/login`, {
 				method: 'POST',
 				body: JSON.stringify(data),
 				headers: { 'Content-Type': 'application/json' }
