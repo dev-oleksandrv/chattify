@@ -1,8 +1,8 @@
 FROM golang:1.23.2 as builder
 WORKDIR /app
-COPY ../../ ./
-
+COPY ../../go.mod ../../go.sum ./
 RUN go mod download
+COPY ../../ ./
 RUN make build-webrtc
 
 FROM debian:bullseye-slim
