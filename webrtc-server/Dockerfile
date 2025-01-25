@@ -3,7 +3,7 @@ WORKDIR /app
 COPY ./go.mod ./go.sum ./
 RUN go mod download
 COPY ./ .
-RUN make build
+RUN go build -o ./bin/chattify-webrtc ./main.go
 
 FROM alpine:latest
 COPY --from=builder /app/bin/chattify-webrtc /chattify-webrtc
