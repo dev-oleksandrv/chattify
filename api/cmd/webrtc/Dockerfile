@@ -5,11 +5,9 @@ RUN go mod download
 COPY ../../ ./
 RUN make build-webrtc
 
-FROM debian:bullseye-slim
+FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/bin .
 EXPOSE 3478/udp
 EXPOSE 3478/tcp
-
-# Run the TURN server binary
 CMD ["./chattify-turn"]
