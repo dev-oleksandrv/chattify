@@ -7,7 +7,7 @@ RUN make build
 
 FROM alpine:latest
 WORKDIR /app
-COPY --from=builder /app/bin .
+COPY --from=builder /app/bin/chattify-webrtc /chattify-webrtc
 EXPOSE 3478/udp
 EXPOSE 3478/tcp
 CMD ["./chattify-webrtc"]
