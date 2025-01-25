@@ -85,6 +85,8 @@ export class WebsocketManager {
 				return;
 			}
 
+			console.log('[WebsocketManager] message received:', parsed);
+
 			if (!this.listeners.has(parsed.type)) {
 				return;
 			}

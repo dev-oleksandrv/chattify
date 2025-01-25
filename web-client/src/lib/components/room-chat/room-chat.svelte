@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { wsManager } from '$lib/ws/websocket';
 	import { sendMessageAction } from '$lib/ws/websocket-actions';
-	import { WsEventType } from '$lib/ws/websocket-events';
 	import { roomMessages } from '../../../store/room-store';
 	import { RoomMessageType, type RoomMessage } from '../../../types/room-types';
 	import Input from '../ui/input.svelte';
@@ -10,10 +9,8 @@
 		containerClassName?: string;
 	}
 
-	let { containerClassName }: RoomChatProps = $props();
-
 	let messages: RoomMessage[] = $state([]);
-	let inputValue = $state('');
+	let inputValue: string = $state('');
 
 	roomMessages.subscribe((val) => (messages = val));
 
@@ -24,13 +21,14 @@
 			return;
 		}
 
-		sendMessageAction(wsManager, {
-			type: WsEventType.SendMessage,
+		sendMessageAction({
 			content: inputValue
 		});
 
 		inputValue = '';
 	};
+
+	let { containerClassName }: RoomChatProps = $props();
 </script>
 
 <div class={containerClassName}>

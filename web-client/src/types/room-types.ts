@@ -7,3 +7,9 @@ export enum RoomMessageType {
 	User,
 	System
 }
+
+export enum RoomStatus {
+	Lobby,
+	ConnectingToBroadcast,
+	Broadcast
+}

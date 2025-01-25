@@ -1,9 +1,26 @@
-<script>
-	import RoomChat from '$lib/components/room-chat/room-chat.svelte';
+<script lang="ts">
+	import { RTCClient } from '$lib/classes/rtc-client';
+	import { roomClients, roomRemoteStreams } from '../../../store/room-store';
+	import RoomBroadcastVideo from './room-broadcast-video.svelte';
+
+	let clients: Record<number, RTCClient> = $state({});
+	let streams: Record<number, MediaStream> = $state({});
+
+	roomClients.subscribe((rcs) => {
+		console.log(rcs, 'clients subscribe');
+
+		clients = rcs;
+	});
+
+	roomRemoteStreams.subscribe((strs) => (streams = strs));
 </script>
 
-<div class="flex flex-1">
-	<div class="flex-1"></div>
+<div class="flex-1">
+	{#each Object.entries(streams) as [id, stream]}
+		<RoomBroadcastVideo id={+id} {stream} />
+	{/each}
 
-	<RoomChat containerClassName="flex w-[320px] flex-none flex-col border-l" />
+	{#each Object.entries(streams) as [id, stream]}
+		<p>{id}</p>
+	{/each}
 </div>
