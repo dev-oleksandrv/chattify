@@ -3,6 +3,7 @@ package config
 import (
 	"log/slog"
 
+	cfgHelpers "github.com/dev-oleksandrv/chattify-api/pkg/config"
 	"github.com/joho/godotenv"
 )
 
@@ -19,19 +20,16 @@ func LoadConfig(filename ...string) (*Config, error) {
 
 	var config Config
 
-	config.Server.Env = GetEnvVarWithFallback("SERVER_ENV", "development")
-	config.Server.Port = GetEnvVarIntWithFallback("SERVER_PORT", 8000)
+	config.Server.Env = cfgHelpers.GetEnvVarWithFallback("SERVER_ENV", "development")
+	config.Server.Port = cfgHelpers.GetEnvVarIntWithFallback("SERVER_PORT", 8000)
 
-	config.Database.Host = MustGetEnvVar("DATABASE_HOST")
-	config.Database.Port = MustGetEnvVarInt("DATABASE_PORT")
-	config.Database.Username = MustGetEnvVar("DATABASE_USERNAME")
-	config.Database.Password = MustGetEnvVar("DATABASE_PASSWORD")
-	config.Database.Name = MustGetEnvVar("DATABASE_NAME")
+	config.Database.Host = cfgHelpers.MustGetEnvVar("DATABASE_HOST")
+	config.Database.Port = cfgHelpers.MustGetEnvVarInt("DATABASE_PORT")
+	config.Database.Username = cfgHelpers.MustGetEnvVar("DATABASE_USERNAME")
+	config.Database.Password = cfgHelpers.MustGetEnvVar("DATABASE_PASSWORD")
+	config.Database.Name = cfgHelpers.MustGetEnvVar("DATABASE_NAME")
 
-	config.Auth.Secret = MustGetEnvVar("AUTH_SECRET")
-
-	config.Turn.Realm = MustGetEnvVar("TURN_REALM")
-	config.Turn.Port = MustGetEnvVarInt("TURN_PORT")
+	config.Auth.Secret = cfgHelpers.MustGetEnvVar("AUTH_SECRET")
 
 	return &config, nil
 }

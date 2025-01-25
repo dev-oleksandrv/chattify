@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dev-oleksandrv/chattify-api/internal/config"
+	"github.com/dev-oleksandrv/chattify-api/pkg/config"
 	"github.com/stretchr/testify/assert"
 )
 
