@@ -1,10 +1,8 @@
-import { PUBLIC_API_URL } from '$env/static/public';
-
 export const load = async (event) => {
 	let token = '';
 
 	try {
-		const result = await fetch(`${PUBLIC_API_URL}/api/protected/ws/handshake`, {
+		const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/protected/ws/handshake`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',

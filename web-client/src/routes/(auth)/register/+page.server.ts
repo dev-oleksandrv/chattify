@@ -1,7 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { registerUserSchema } from '../../../schemas/user-validation';
-import { PUBLIC_API_URL } from '$env/static/public';
 
 export const actions = {
 	default: async (event) => {
@@ -21,7 +20,7 @@ export const actions = {
 		const { confirmPassword: _, ...dto } = data;
 
 		try {
-			const result = await fetch(`${PUBLIC_API_URL}/api/auth/register`, {
+			const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/auth/register`, {
 				method: 'POST',
 				body: JSON.stringify(dto),
 				headers: { 'Content-Type': 'application/json' }

@@ -1,6 +1,5 @@
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { createRoomSchema } from '../../schemas/room-validation';
-import { PUBLIC_API_URL } from '$env/static/public';
 
 export const actions = {
 	createRoom: async (event) => {
@@ -17,7 +16,7 @@ export const actions = {
 		let redirectionUrl = '/';
 
 		try {
-			const result = await fetch(`${PUBLIC_API_URL}/api/protected/room`, {
+			const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/protected/room`, {
 				method: 'POST',
 				body: JSON.stringify(data),
 				headers: {
