@@ -10,6 +10,11 @@ export interface Room {
   onlineUsers: RoomUser[];
 }
 
+export interface RoomMessage {
+  content: string;
+  type: RoomMessageType;
+}
+
 export enum RoomLoadingStatus {
   IDLE,
   LOADING,
@@ -18,13 +23,19 @@ export enum RoomLoadingStatus {
 }
 
 export enum RoomUserStatus {
-  Lobby,
-  Connecting,
-  Broadcast,
-
   LOCAL_STREAM_LOADING,
   LOCAL_STREAM_FAILED,
   LOCAL_STREAM_READY,
+}
+
+export enum RoomUserView {
+  LOBBY,
+  BROADCAST,
+}
+
+export enum RoomMessageType {
+  USER,
+  SYSTEM,
 }
 
 export enum RoomConnectionStatus {}

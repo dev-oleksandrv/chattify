@@ -1,28 +1,19 @@
-"use client";
+import { handshakeWsRequest } from "@/api/api";
+import { RoomLoader } from "@/components/room/room-loader";
 
-import { RoomEngine } from "@/components/room/room-engine";
-import { RoomError } from "@/components/room/room-error";
-import { RoomLoading } from "@/components/room/room-loading";
-import { useRoomStoreInit } from "@/store/room-store";
-import { RoomLoadingStatus } from "@/types/room-types";
-import { useParams } from "next/navigation";
+export default async function RoomPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const numericId = parseInt(id);
 
-export default function RoomPage() {
-  const { id } = useParams<{ id: string }>();
-
-  const status = useRoomStoreInit(parseInt(id));
-
-  if (status === RoomLoadingStatus.LOADING) {
-    return <RoomLoading />;
+  if (Number.isNaN(numericId)) {
+    return null;
   }
 
-  if (status === RoomLoadingStatus.FAILED) {
-    return <RoomError />;
-  }
+  const { token } = await handshakeWsRequest(parseInt(id));
 
-  if (status === RoomLoadingStatus.READY) {
-    return <RoomEngine />;
-  }
-
-  return null;
+  return <RoomLoader id={numericId} token={token} />;
 }

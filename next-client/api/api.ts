@@ -34,3 +34,12 @@ export const registerUserRequest = async (dto: RegisterUserSchemaType) =>
   apiClient
     .post<RegisterUserResponse>("/api/auth/register", dto)
     .then((response) => response.data);
+
+export const handshakeWsRequest = async (id: number) =>
+  apiClient
+    .get<{ token: string }>("/api/protected/ws/handshake", {
+      headers: {
+        "X-Room-Id": id,
+      },
+    })
+    .then((response) => response.data);

@@ -11,6 +11,7 @@ interface RoomVideoPreviewProps {
 
   isLoading?: boolean;
   isError?: boolean;
+  isVideoEnabled?: boolean;
   rootClassName?: string;
 }
 
@@ -19,11 +20,10 @@ export const RoomVideoPreview = memo(
     stream,
     isLoading = false,
     isError = false,
+    isVideoEnabled = true,
     rootClassName,
   }: RoomVideoPreviewProps) => {
     const videoEl = useRef<HTMLVideoElement | null>(null);
-
-    const isVideoEnabled = useRoomUserStore((state) => state.isVideoEnabled);
 
     useEffect(() => {
       if (stream && videoEl.current) {

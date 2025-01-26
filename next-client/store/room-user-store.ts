@@ -1,11 +1,12 @@
 import { disableMediaTracks, enableMediaTracks } from "@/lib/utils";
-import { RoomUserStatus } from "@/types/room-types";
+import { RoomUserStatus, RoomUserView } from "@/types/room-types";
 import { useEffect } from "react";
 import { create } from "zustand";
 
 interface RoomUserStore {
   status: RoomUserStatus;
   stream: MediaStream | null;
+  view: RoomUserView;
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
 
@@ -13,10 +14,12 @@ interface RoomUserStore {
   updateVideoEnabled: (newValue: boolean) => void;
   updateStatus: (status: RoomUserStatus) => void;
   updateStream: (stream: MediaStream) => void;
+  updateView: (view: RoomUserView) => void;
 }
 
-export const useRoomUserStore = create<RoomUserStore>((set, getState) => ({
-  status: RoomUserStatus.Lobby,
+export const useRoomUserStore = create<RoomUserStore>((set) => ({
+  status: RoomUserStatus.LOCAL_STREAM_LOADING,
+  view: RoomUserView.LOBBY,
   stream: null,
 
   isAudioEnabled: true,
@@ -26,7 +29,10 @@ export const useRoomUserStore = create<RoomUserStore>((set, getState) => ({
   updateVideoEnabled: (newValue) => set({ isVideoEnabled: newValue }),
   updateStatus: (status) => set({ status }),
   updateStream: (stream) => set({ stream }),
+  updateView: (view) => set({ view }),
 }));
+
+export const getRoomUserStream = () => useRoomUserStore.getState().stream;
 
 export const clearRoomUserStore = () =>
   useRoomUserStore.setState(useRoomUserStore.getInitialState());
@@ -62,7 +68,7 @@ export const toggleRoomUserVideo = () => {
 };
 
 export const useRoomUserInit = () => {
-  const { updateStream, updateStatus } = useRoomUserStore();
+  const { status, updateStream, updateStatus } = useRoomUserStore();
 
   useEffect(() => {
     const handler = async () => {
@@ -87,4 +93,9 @@ export const useRoomUserInit = () => {
 
     return () => clearRoomUserStore();
   }, []);
+
+  return status;
 };
+
+export const updateRoomUserView = (view: RoomUserView) =>
+  useRoomUserStore.getState().updateView(view);
