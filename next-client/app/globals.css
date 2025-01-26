@@ -69,4 +69,7 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  .layer-gradient {
+    @apply bg-gradient-to-br from-indigo-100 to-purple-100;
+  }
 }
