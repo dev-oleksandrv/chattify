@@ -3,7 +3,7 @@ import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export const RoomError = memo(() => {
+export const RoomError = memo(function RoomError() {
   return (
     <div className="absolute top-0 left-0 w-full h-full flex flex-col gap-4 justify-center items-center">
       <CircleXIcon className="size-24 text-red-400" />

@@ -12,8 +12,7 @@ interface RoomEngineProps {
   token: string;
 }
 
-export const RoomEngine = memo(({ token }: RoomEngineProps) => {
-  const status = useRoomUserInit();
+export const RoomEngine = memo(function RoomEngine({ token }: RoomEngineProps) {
   const view = useRoomUserStore((state) => state.view);
   const connectedRef = useRef(false);
 
@@ -29,6 +28,8 @@ export const RoomEngine = memo(({ token }: RoomEngineProps) => {
       // wsManager.close();
     };
   }, [token]);
+
+  useRoomUserInit();
 
   if (view === RoomUserView.BROADCAST) {
     return <RoomBroadcast />;

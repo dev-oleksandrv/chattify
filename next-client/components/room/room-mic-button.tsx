@@ -6,7 +6,7 @@ import { Mic, MicOff } from "lucide-react";
 import { RoomUserStatus } from "@/types/room-types";
 import { memo } from "react";
 
-export const RoomMicButton = memo(() => {
+export const RoomMicButton = memo(function RoomMicButton() {
   const status = useRoomUserStore((state) => state.status);
   const isAudioEnabled = useRoomUserStore((state) => state.isAudioEnabled);
 

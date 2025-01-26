@@ -12,7 +12,10 @@ interface RoomLoaderProps {
   token: string;
 }
 
-export const RoomLoader = memo(({ id, token }: RoomLoaderProps) => {
+export const RoomLoader = memo(function RoomLoader({
+  id,
+  token,
+}: RoomLoaderProps) {
   const status = useRoomStoreInit(id);
 
   if (status === RoomLoadingStatus.LOADING) {

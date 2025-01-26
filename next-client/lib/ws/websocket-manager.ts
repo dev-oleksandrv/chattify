@@ -4,6 +4,7 @@ type WebsocketManagerListener<T extends WsBaseEvent> = (data: T) => void;
 
 export class WebsocketManager {
   private socket: WebSocket | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private listeners: Map<WsEventType, WebsocketManagerListener<any>[]> =
     new Map();
 
@@ -119,6 +120,7 @@ export class WebsocketManager {
     this.socket = null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseEventData(data: any): WsBaseEvent | null {
     try {
       return JSON.parse(data) satisfies WsBaseEvent;

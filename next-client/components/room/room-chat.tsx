@@ -7,7 +7,7 @@ import { RoomChatMessage } from "./room-chat-message";
 import { useRoomChatStore } from "@/store/room-chat-store";
 import { sendMessageAction } from "@/lib/ws/websocket-actions";
 
-export const RoomChat = memo(() => {
+export const RoomChat = memo(function RoomChat() {
   const messages = useRoomChatStore((state) => state.messages);
   const prevMessagesCount = useRef(messages.length);
   const chatScrolled = useRef(false);

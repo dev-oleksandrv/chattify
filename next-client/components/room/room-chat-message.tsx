@@ -6,7 +6,9 @@ interface RoomChatMessageProps {
   message: RoomMessage;
 }
 
-export const RoomChatMessage = memo(({ message }: RoomChatMessageProps) => {
+export const RoomChatMessage = memo(function RoomChatMessage({
+  message,
+}: RoomChatMessageProps) {
   return (
     <div className="flex gap-2 mt-2">
       <div className="flex flex-col justify-end items-center w-5 flex-none">

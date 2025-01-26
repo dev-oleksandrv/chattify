@@ -6,7 +6,7 @@ import { Video, VideoOff } from "lucide-react";
 import { RoomUserStatus } from "@/types/room-types";
 import { memo } from "react";
 
-export const RoomCamButton = memo(() => {
+export const RoomCamButton = memo(function RoomCamButton() {
   const status = useRoomUserStore((state) => state.status);
   const isVideoEnabled = useRoomUserStore((state) => state.isVideoEnabled);
 
