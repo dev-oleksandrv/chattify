@@ -10,13 +10,12 @@
 
 	const { token } = page.data;
 
-	let isLobby = $state(true);
 	let status = $state(RoomStatus.Lobby);
 
 	roomStatus.subscribe((state) => (status = state));
 
 	onMount(() => {
-		const wsUrl = `ws://${import.meta.env.VITE_API_URL}/ws?token=${token}`;
+		const wsUrl = `wss://${import.meta.env.VITE_API_URL}/ws?token=${token}`;
 		wsManager.connect(wsUrl);
 
 		return () => {
