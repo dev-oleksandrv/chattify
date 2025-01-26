@@ -15,3 +15,15 @@ export function getCookie(name: string): string | null {
   }
   return null;
 }
+
+export function enableMediaTracks(tracks: MediaStreamTrack[]) {
+  tracks.forEach((track) => {
+    track.enabled = true;
+  });
+}
+
+export function disableMediaTracks(tracks: MediaStreamTrack[]) {
+  tracks.forEach((track) => {
+    track.enabled = false;
+  });
+}

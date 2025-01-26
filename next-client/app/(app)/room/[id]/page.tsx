@@ -1,16 +1,28 @@
 "use client";
 
-import { RoomBroadcast } from "@/components/room/room-broadcast";
-import { RoomLobby } from "@/components/room/room-lobby";
-import { useRoomUserStore } from "@/store/room-user-store";
-import { RoomUserStatus } from "@/types/room-types";
+import { RoomEngine } from "@/components/room/room-engine";
+import { RoomError } from "@/components/room/room-error";
+import { RoomLoading } from "@/components/room/room-loading";
+import { useRoomStoreInit } from "@/store/room-store";
+import { RoomLoadingStatus } from "@/types/room-types";
+import { useParams } from "next/navigation";
 
 export default function RoomPage() {
-  const status = useRoomUserStore((state) => state.status);
+  const { id } = useParams<{ id: string }>();
 
-  if (status === RoomUserStatus.Broadcast) {
-    return <RoomBroadcast />;
+  const status = useRoomStoreInit(parseInt(id));
+
+  if (status === RoomLoadingStatus.LOADING) {
+    return <RoomLoading />;
   }
 
-  return <RoomLobby />;
+  if (status === RoomLoadingStatus.FAILED) {
+    return <RoomError />;
+  }
+
+  if (status === RoomLoadingStatus.READY) {
+    return <RoomEngine />;
+  }
+
+  return null;
 }

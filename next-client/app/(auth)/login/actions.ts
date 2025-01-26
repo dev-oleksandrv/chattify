@@ -40,7 +40,7 @@ export const loginUserAction = async (
       name: "auth_token",
       value: result.token,
       path: "/",
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
     });
   } catch (error) {

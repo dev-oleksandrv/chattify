@@ -13,14 +13,14 @@ import { RoomUserStatus } from "@/types/room-types";
 
 export const RoomLobby = () => {
   const status = useRoomUserStore((state) => state.status);
+  const stream = useRoomUserStore((state) => state.stream);
   const updateStatus = useRoomUserStore((state) => state.updateStatus);
 
   const joinBroadcastHandler = () => {
-    updateStatus(RoomUserStatus.Connecting);
-
-    setTimeout(() => {
-      updateStatus(RoomUserStatus.Broadcast);
-    }, 3000);
+    // updateStatus(RoomUserStatus.Connecting);
+    // setTimeout(() => {
+    //   updateStatus(RoomUserStatus.Broadcast);
+    // }, 3000);
   };
 
   return (
@@ -40,7 +40,11 @@ export const RoomLobby = () => {
         </div>
         <Card className="flex-1 mb-6">
           <CardContent className="p-6 flex flex-col items-center justify-center h-full">
-            <RoomVideoPreview rootClassName="" />
+            <RoomVideoPreview
+              isLoading={status === RoomUserStatus.LOCAL_STREAM_LOADING}
+              isError={status === RoomUserStatus.LOCAL_STREAM_FAILED}
+              stream={stream}
+            />
             <div className="flex justify-center space-x-4 mt-4">
               <RoomMicButton />
               <RoomCamButton />

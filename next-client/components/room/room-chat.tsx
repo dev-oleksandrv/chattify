@@ -3,10 +3,10 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { RoomChatMessage } from "./room-chat-message";
 
-export const RoomChat = () => {
+export const RoomChat = memo(() => {
   const [message, setMessage] = useState("");
 
   return (
@@ -31,4 +31,4 @@ export const RoomChat = () => {
       </CardContent>
     </Card>
   );
-};
+});
