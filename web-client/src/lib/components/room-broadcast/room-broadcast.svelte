@@ -32,7 +32,7 @@
 
 	<div class="flex-none">
 		{#if !!localStream}
-			<RoomBroadcastVideo containerClassName="h-32 w-52" stream={localStream} label="You" />
+			<RoomBroadcastVideo muted containerClassName="h-32 w-52" stream={localStream} label="You" />
 		{/if}
 	</div>
 </div>

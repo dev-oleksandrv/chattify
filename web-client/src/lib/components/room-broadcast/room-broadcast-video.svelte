@@ -4,13 +4,14 @@
 
 	interface Props {
 		stream: MediaStream;
+		muted?: boolean;
 		containerClassName?: string;
 		label?: string;
 	}
 
 	let videoEl: HTMLVideoElement;
 
-	const { stream, containerClassName, label }: Props = $props();
+	const { stream, muted, containerClassName, label }: Props = $props();
 
 	onMount(() => {
 		if (videoEl && stream) {
@@ -20,7 +21,7 @@
 </script>
 
 <div class={cn('relative overflow-hidden rounded-xl', containerClassName)}>
-	<video muted bind:this={videoEl} autoplay class="h-full w-full object-cover">
+	<video {muted} bind:this={videoEl} autoplay class="h-full w-full object-cover">
 		<track kind="captions" />
 	</video>
 
