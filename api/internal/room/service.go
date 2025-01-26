@@ -14,6 +14,15 @@ func NewRoomService(roomRepository *RoomRepository) *RoomService {
 	return &RoomService{roomRepository}
 }
 
+func (s *RoomService) FindById(id uint) (*RoomDto, error) {
+	room, err := s.roomRepository.FindById(id)
+	if err != nil {
+		slog.Error("roomService.FindById: no room found", "err", err)
+		return nil, err
+	}
+	return MapModelToRoomDto(room), nil
+}
+
 func (s *RoomService) Create(dto CreateRoomDto) (*RoomDto, error) {
 	if err := dto.Validate(); err != nil {
 		slog.Error("roomService.Create: failed validation", "err", err)

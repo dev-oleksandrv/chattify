@@ -12,6 +12,7 @@ import (
 	"github.com/dev-oleksandrv/chattify-api/internal/room"
 	"github.com/dev-oleksandrv/chattify-api/internal/ws"
 	"github.com/labstack/echo/v4"
+	eMiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -49,6 +50,7 @@ func main() {
 	roomRouter.AttachRouter(protectedGroup, cfg, db)
 
 	e.Use(middleware.CreateLoggerMiddleware())
+	e.Use(eMiddleware.CORS())
 
 	go wsHandler.Run()
 

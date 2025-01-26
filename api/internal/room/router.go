@@ -23,6 +23,7 @@ func (r *RoomRouter) AttachRouter(rootGroup *echo.Group, cfg *config.Config, db 
 	router := rootGroup.Group("/room")
 
 	router.POST("", r.roomHandler.CreateRoom)
+	router.GET("/:id", r.roomHandler.FindById)
 
 	return router
 }
