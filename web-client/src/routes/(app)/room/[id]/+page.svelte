@@ -16,7 +16,7 @@
 	roomStatus.subscribe((state) => (status = state));
 
 	onMount(() => {
-		const wsUrl = `ws://localhost:8000/ws?token=${token}`;
+		const wsUrl = `ws://${import.meta.env.VITE_API_URL}/ws?token=${token}`;
 		wsManager.connect(wsUrl);
 
 		return () => {

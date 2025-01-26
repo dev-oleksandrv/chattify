@@ -16,7 +16,7 @@ export const actions = {
 		let redirectionUrl = '/';
 
 		try {
-			const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/protected/room`, {
+			const result = await fetch(`https://${import.meta.env.VITE_API_URL!}/api/protected/room`, {
 				method: 'POST',
 				body: JSON.stringify(data),
 				headers: {

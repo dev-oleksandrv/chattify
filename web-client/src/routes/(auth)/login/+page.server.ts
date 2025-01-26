@@ -16,7 +16,7 @@ export const actions = {
 		}
 
 		try {
-			const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/auth/login`, {
+			const result = await fetch(`https://${import.meta.env.VITE_API_URL!}/api/auth/login`, {
 				method: 'POST',
 				body: JSON.stringify(data),
 				headers: { 'Content-Type': 'application/json' }

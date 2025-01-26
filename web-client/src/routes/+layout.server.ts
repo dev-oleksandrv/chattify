@@ -14,7 +14,7 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
 	}
 
 	try {
-		const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/auth/verify`, {
+		const result = await fetch(`https://${import.meta.env.VITE_API_URL!}/api/auth/verify`, {
 			method: 'GET',
 			headers: { Authorization: `Bearer ${token}` }
 		});

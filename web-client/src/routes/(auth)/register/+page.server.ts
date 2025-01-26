@@ -20,7 +20,7 @@ export const actions = {
 		const { confirmPassword: _, ...dto } = data;
 
 		try {
-			const result = await fetch(`${import.meta.env.VITE_API_URL!}/api/auth/register`, {
+			const result = await fetch(`https://${import.meta.env.VITE_API_URL!}/api/auth/register`, {
 				method: 'POST',
 				body: JSON.stringify(dto),
 				headers: { 'Content-Type': 'application/json' }
