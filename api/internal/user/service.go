@@ -57,6 +57,8 @@ func (s *UserService) Create(dto CreateUserDto) (*models.User, error) {
 		Email:    dto.Email,
 		Username: dto.Username,
 		Password: hashedPassword,
+		// TODO: change to not hard-coded, I just want to sleep btw
+		AvatarURL: "https://i.imgur.com/dAcjwzD.jpeg",
 	}
 
 	if err := s.userRepository.Create(user); err != nil {

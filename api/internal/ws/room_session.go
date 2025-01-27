@@ -49,9 +49,9 @@ func (s *WsRoomSession) BroadcastAll(msg []byte) {
 	for _, c := range s.Clients {
 		select {
 		case c.SendQueue <- msg:
-			slog.Info("broadcast to", "id", c.UserId)
+			slog.Info("broadcast to", "id", c.UserDetails.ID)
 		default:
-			slog.Warn("send queue full, dropping message", "id", c.UserId)
+			slog.Warn("send queue full, dropping message", "id", c.UserDetails.ID)
 		}
 	}
 }
@@ -64,9 +64,9 @@ func (s *WsRoomSession) BroadcastOthers(msg []byte, filterId uint) {
 		}
 		select {
 		case c.SendQueue <- msg:
-			slog.Info("broadcast to", "id", c.UserId)
+			slog.Info("broadcast to", "id", c.UserDetails.ID)
 		default:
-			slog.Warn("send queue full, dropping message", "id", c.UserId)
+			slog.Warn("send queue full, dropping message", "id", c.UserDetails.ID)
 		}
 	}
 }
@@ -79,11 +79,11 @@ func (s *WsRoomSession) BroadcastTarget(msg []byte, targetId uint) {
 }
 
 func (s *WsRoomSession) AddClient(client *WsClientSession) {
-	s.Clients[client.UserId] = client
+	s.Clients[client.UserDetails.ID] = client
 }
 
 func (s *WsRoomSession) RemoveClient(client *WsClientSession) {
-	delete(s.Clients, client.UserId)
+	delete(s.Clients, client.UserDetails.ID)
 }
 
 func (s *WsRoomSession) IsEmpty() bool {
@@ -149,9 +149,9 @@ func (s *WsRoomSession) HandleJoinBroadcastEvent(msg *WsClientMessage) {
 		}
 		select {
 		case c.SendQueue <- response.ToRaw():
-			slog.Info("broadcast to", "id", c.UserId)
+			slog.Info("broadcast to", "id", c.UserDetails.ID)
 		default:
-			slog.Warn("send queue full, dropping message", "id", c.UserId)
+			slog.Warn("send queue full, dropping message", "id", c.UserDetails.ID)
 		}
 	}
 }

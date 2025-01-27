@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -51,6 +52,10 @@ func (h *WsHandler) HandshakeHandlerFunc(c echo.Context) error {
 	if err != nil {
 		slog.Error("error while parsing roomId", "err", err)
 		return err
+	}
+
+	if _, ok := h.rooms[uint(roomId)].Clients[user.ID]; ok {
+		return errors.New("user already connected to this room")
 	}
 
 	token := uuid.New()
@@ -110,10 +115,16 @@ func (h *WsHandler) HandlerFunc(c echo.Context) error {
 
 	clientSession := &WsClientSession{
 		Room:      h.rooms[uint(roomId)],
-		UserId:    user.ID,
 		Socket:    socket,
 		SendQueue: make(chan []byte),
 		Status:    WsClientSessionStatusJoinedLobby,
+		UserDetails: &WsClientSessionUserDetails{
+			ID:           user.ID,
+			Username:     user.Username,
+			AvatarURL:    user.AvatarURL,
+			VideoEnabled: true,
+			AudioEnabled: true,
+		},
 	}
 
 	h.join <- clientSession
@@ -134,10 +145,10 @@ func (h *WsHandler) Run() {
 
 			event := &WsJoinedLobbyEvent{
 				WsBaseEvent: WsBaseEvent{Type: JoinedLobbyEventType},
-				UserId:      cs.UserId,
+				UserId:      cs.UserDetails.ID,
 			}
 			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
-				Sender: cs.UserId,
+				Sender: cs.UserDetails.ID,
 				Raw:    event.ToRaw(),
 				Client: cs,
 			}
@@ -148,10 +159,10 @@ func (h *WsHandler) Run() {
 
 			event := &WsLeavedLobbyEvent{
 				WsBaseEvent: WsBaseEvent{Type: LeavedLobbyEventType},
-				UserId:      cs.UserId,
+				UserId:      cs.UserDetails.ID,
 			}
 			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
-				Sender: cs.UserId,
+				Sender: cs.UserDetails.ID,
 				Raw:    event.ToRaw(),
 				Client: cs,
 			}
