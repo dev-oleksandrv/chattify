@@ -40,6 +40,8 @@ func (s *WsRoomSession) HandleMessage(msg *WsClientMessage) {
 		s.HandleRtcSendOfferEvent(msg)
 	case RtcSendCandidateEventType:
 		s.HandleRtcSendCandidateEvent(msg)
+	case DeviceStatusChangeEventType:
+		s.HandleDeviceStatusChangeEvent(msg)
 	}
 
 }
@@ -78,6 +80,37 @@ func (s *WsRoomSession) BroadcastTarget(msg []byte, targetId uint) {
 	}
 }
 
+func (s *WsRoomSession) EstablishConnection(client *WsClientSession) {
+	otherClients := []*WsClientSessionUserDetails{}
+	for otherClientId, otherClient := range s.Clients {
+		if otherClientId == client.UserDetails.ID {
+			continue
+		}
+
+		otherClients = append(otherClients, otherClient.UserDetails)
+	}
+
+	serializedResponse, err := json.Marshal(&WsConnectionEstablishedEvent{
+		WsBaseEvent: WsBaseEvent{Type: ConnectionEstablishedEventType},
+		Clients:     otherClients,
+	})
+	if err != nil {
+		slog.Error("cannot marshal response msg on establish connection event", "err", err)
+		return
+	}
+
+	s.BroadcastTarget(serializedResponse, client.UserDetails.ID)
+}
+
+func (s *WsRoomSession) NotifyRoom(client *WsClientSession) {
+	joinedLobbyEvent := &WsJoinedLobbyEvent{
+		WsBaseEvent: WsBaseEvent{Type: JoinedLobbyEventType},
+		Details:     client.UserDetails,
+	}
+
+	s.BroadcastOthers(joinedLobbyEvent.ToRaw(), client.UserDetails.ID)
+}
+
 func (s *WsRoomSession) AddClient(client *WsClientSession) {
 	s.Clients[client.UserDetails.ID] = client
 }
@@ -100,6 +133,7 @@ func (s *WsRoomSession) HandleSendMessageEvent(msg *WsClientMessage) {
 	serializedResponse, err := json.Marshal(&WsReceiveMessageEvent{
 		WsBaseEvent: WsBaseEvent{Type: ReceiveMessageEventType},
 		Content:     event.Content,
+		UserId:      msg.Sender,
 	})
 	if err != nil {
 		slog.Error("cannot marshal response msg on receive message event", "err", err)
@@ -205,4 +239,21 @@ func (s *WsRoomSession) HandleRtcSendCandidateEvent(msg *WsClientMessage) {
 	}
 
 	s.BroadcastTarget(response.ToRaw(), event.Target)
+}
+
+func (s *WsRoomSession) HandleDeviceStatusChangeEvent(msg *WsClientMessage) {
+	var event WsDeviceStatusChangeEvent
+	if err := json.Unmarshal(msg.Raw, &event); err != nil {
+		slog.Error("cannot unmarshal msg on leaved lobby event", "err", err, "raw", string(msg.Raw))
+		return
+	}
+
+	response := &WsChangedDeviceStatusEvent{
+		WsBaseEvent: WsBaseEvent{Type: ChangedDeviceStatusEventType},
+		UserId:      msg.Sender,
+		DeviceType:  event.DeviceType,
+		Enabled:     event.Enabled,
+	}
+
+	s.BroadcastOthers(response.ToRaw(), msg.Sender)
 }

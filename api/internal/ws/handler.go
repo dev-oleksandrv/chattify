@@ -1,11 +1,11 @@
 package ws
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/dev-oleksandrv/chattify-api/internal/auth"
 	"github.com/dev-oleksandrv/chattify-api/internal/user"
@@ -20,6 +20,7 @@ type WsHandler struct {
 	leave             chan *WsClientSession
 	rooms             map[uint]*WsRoomSession
 	handshakeSessions map[uuid.UUID]*WsHandshakeSession
+	roomsLock         sync.RWMutex
 }
 
 func NewWsHandler() *WsHandler {
@@ -41,6 +42,8 @@ func NewWsHandler() *WsHandler {
 func (h *WsHandler) HandshakeHandlerFunc(c echo.Context) error {
 	user := c.Get(auth.AuthUserDataContextKey).(*user.UserDto)
 
+	slog.Info("handshake", "user", user.ID)
+
 	roomIdRaw := c.Request().Header.Get("X-Room-Id")
 	if roomIdRaw == "" {
 		err := fmt.Errorf("room id is required to connect to ws")
@@ -54,15 +57,23 @@ func (h *WsHandler) HandshakeHandlerFunc(c echo.Context) error {
 		return err
 	}
 
-	if _, ok := h.rooms[uint(roomId)].Clients[user.ID]; ok {
-		return errors.New("user already connected to this room")
+	roomIdUint := uint(roomId)
+
+	room, ok := h.getRoom(roomIdUint)
+	if ok {
+		if _, ok := room.Clients[user.ID]; ok {
+			return echo.NewHTTPError(http.StatusForbidden, "user already connected to room")
+		}
+
+		if len(room.Clients) >= 5 {
+			return echo.NewHTTPError(http.StatusForbidden, "max limit of users in room exceeded")
+		}
 	}
 
 	token := uuid.New()
-
 	h.handshakeSessions[token] = &WsHandshakeSession{
 		User:   user,
-		RoomId: uint(roomId),
+		RoomId: roomIdUint,
 		Token:  token,
 	}
 
@@ -93,7 +104,7 @@ func (h *WsHandler) HandlerFunc(c echo.Context) error {
 	}
 
 	user := details.User
-	roomId := details.RoomId
+	roomId := uint(details.RoomId)
 
 	delete(h.handshakeSessions, token)
 
@@ -103,18 +114,14 @@ func (h *WsHandler) HandlerFunc(c echo.Context) error {
 		return err
 	}
 
-	if _, ok := h.rooms[uint(roomId)]; !ok {
-		h.rooms[uint(roomId)] = &WsRoomSession{
-			Id:      uint(roomId),
-			Clients: make(map[uint]*WsClientSession),
-			Message: make(chan *WsClientMessage),
-		}
-
-		go h.rooms[uint(roomId)].Read()
+	if _, ok := h.getRoom(roomId); !ok {
+		h.createRoom(roomId)
 	}
 
+	go h.rooms[roomId].Read()
+
 	clientSession := &WsClientSession{
-		Room:      h.rooms[uint(roomId)],
+		Room:      h.rooms[roomId],
 		Socket:    socket,
 		SendQueue: make(chan []byte),
 		Status:    WsClientSessionStatusJoinedLobby,
@@ -141,36 +148,56 @@ func (h *WsHandler) Run() {
 		select {
 		case cs := <-h.join:
 			slog.Info("joined")
-			h.rooms[cs.Room.Id].AddClient(cs)
+			room, ok := h.getRoom(cs.Room.Id)
+			if !ok {
+				slog.Error("cannot find room while join user")
+				return
+			}
 
-			event := &WsJoinedLobbyEvent{
-				WsBaseEvent: WsBaseEvent{Type: JoinedLobbyEventType},
-				UserId:      cs.UserDetails.ID,
-			}
-			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
-				Sender: cs.UserDetails.ID,
-				Raw:    event.ToRaw(),
-				Client: cs,
-			}
+			room.AddClient(cs)
+			room.NotifyRoom(cs)
+			room.EstablishConnection(cs)
 
 		case cs := <-h.leave:
-			slog.Info("leaved")
-			h.rooms[cs.Room.Id].RemoveClient(cs)
+			room, ok := h.getRoom(cs.Room.Id)
+			if !ok {
+				return
+			}
+			room.RemoveClient(cs)
 
 			event := &WsLeavedLobbyEvent{
 				WsBaseEvent: WsBaseEvent{Type: LeavedLobbyEventType},
 				UserId:      cs.UserDetails.ID,
 			}
-			h.rooms[cs.Room.Id].Message <- &WsClientMessage{
+			room.Message <- &WsClientMessage{
 				Sender: cs.UserDetails.ID,
 				Raw:    event.ToRaw(),
 				Client: cs,
 			}
 
-			if h.rooms[cs.Room.Id].IsEmpty() {
+			if room.IsEmpty() {
 				delete(h.rooms, cs.Room.Id)
 			}
 		}
-		slog.Info("rooms", "rooms", h.rooms)
 	}
+}
+
+func (h *WsHandler) getRoom(id uint) (*WsRoomSession, bool) {
+	h.roomsLock.Lock()
+	defer h.roomsLock.Unlock()
+	room, ok := h.rooms[id]
+	return room, ok
+}
+
+func (h *WsHandler) createRoom(id uint) *WsRoomSession {
+	h.roomsLock.Lock()
+	defer h.roomsLock.Unlock()
+	if _, exists := h.rooms[id]; !exists {
+		h.rooms[id] = &WsRoomSession{
+			Id:      id,
+			Clients: make(map[uint]*WsClientSession),
+			Message: make(chan *WsClientMessage),
+		}
+	}
+	return h.rooms[id]
 }

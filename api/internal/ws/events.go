@@ -12,6 +12,7 @@ type WsSendMessageEvent struct {
 
 type WsReceiveMessageEvent struct {
 	WsBaseEvent
+	UserId  uint   `json:"userId"`
 	Content string `json:"content"`
 }
 
@@ -39,7 +40,7 @@ func (e *WsLeavedBroadcastEvent) ToRaw() []byte {
 
 type WsJoinedLobbyEvent struct {
 	WsBaseEvent
-	UserId uint `json:"userId"`
+	Details *WsClientSessionUserDetails `json:"details"`
 }
 
 func (e *WsJoinedLobbyEvent) ToRaw() []byte {
@@ -103,6 +104,36 @@ type WsRtcReceiveCandidateEvent struct {
 }
 
 func (e *WsRtcReceiveCandidateEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsConnectionEstablishedEvent struct {
+	WsBaseEvent
+	Clients []*WsClientSessionUserDetails `json:"clients"`
+}
+
+func (e *WsConnectionEstablishedEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsDeviceStatusChangeEvent struct {
+	WsBaseEvent
+	DeviceType WsDeviceType `json:"deviceType"`
+	Enabled    bool         `json:"enabled"`
+}
+
+func (e *WsDeviceStatusChangeEvent) ToRaw() []byte {
+	return e.WsBaseEvent.ToRaw(e)
+}
+
+type WsChangedDeviceStatusEvent struct {
+	WsBaseEvent
+	UserId     uint         `json:"userId"`
+	DeviceType WsDeviceType `json:"deviceType"`
+	Enabled    bool         `json:"enabled"`
+}
+
+func (e *WsChangedDeviceStatusEvent) ToRaw() []byte {
 	return e.WsBaseEvent.ToRaw(e)
 }
 

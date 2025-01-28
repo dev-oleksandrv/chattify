@@ -1,6 +1,7 @@
 package ws
 
 type WsEventType string
+type WsDeviceType string
 
 const (
 	ReceiveMessageEventType WsEventType = "receive_message"
@@ -18,4 +19,13 @@ const (
 	RtcReceiveOfferEventType     WsEventType = "rtc_receive_offer"
 	RtcReceiveAnswerEventType    WsEventType = "rtc_receive_answer"
 	RtcReceiveCandidateEventType WsEventType = "rtc_receive_candidate"
+
+	ConnectionEstablishedEventType WsEventType = "connection_established"
+	DeviceStatusChangeEventType    WsEventType = "device_status_change"
+	ChangedDeviceStatusEventType   WsEventType = "changed_device_status"
+)
+
+const (
+	VideoDeviceType WsDeviceType = "video"
+	AudioDeviceType WsDeviceType = "audio"
 )
