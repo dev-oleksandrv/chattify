@@ -19,7 +19,7 @@ export default async function RoomPage({
   try {
     const result = await handshakeWsRequest(parseInt(id));
     token = result.token;
-  } catch (error) {
+  } catch {
     return <RoomError />;
   }
 

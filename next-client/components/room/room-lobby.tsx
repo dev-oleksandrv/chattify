@@ -14,8 +14,6 @@ import { joinBroadcastAction } from "@/lib/ws/websocket-actions";
 
 export const RoomLobby = () => {
   const status = useRoomUserStore((state) => state.status);
-  const stream = useRoomUserStore((state) => state.stream);
-  const isVideoEnabled = useRoomUserStore((state) => state.isVideoEnabled);
   const connectionStatus = useRoomUserStore((state) => state.connectionStatus);
 
   const joinBroadcastHandler = () => {

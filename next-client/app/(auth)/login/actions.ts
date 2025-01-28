@@ -40,7 +40,7 @@ export const loginUserAction = async (
       httpOnly: false,
       secure: true,
     });
-  } catch (error) {
+  } catch {
     return {
       errors: {
         server: ["Invalid email or password"],

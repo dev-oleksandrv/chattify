@@ -5,6 +5,8 @@ const createFakerUser = (): RoomUser => ({
   id: faker.number.int(),
   username: faker.internet.username(),
   avatarUrl: faker.image.avatar(),
+  videoEnabled: false,
+  audioEnabled: false,
 });
 
 const createFakeRoom = (): Room => ({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRoomUserInit, useRoomUserStore } from "@/store/room-user-store";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect } from "react";
 import { RoomLobby } from "./room-lobby";
 import { wsManager } from "@/lib/ws/websocket";
 import environment from "@/environment";

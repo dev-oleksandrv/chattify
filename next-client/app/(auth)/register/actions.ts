@@ -45,7 +45,7 @@ export const registerUserAction = async (
       httpOnly: false,
       secure: true,
     });
-  } catch (error) {
+  } catch {
     return {
       errors: {
         server: ["Email is already in use"],

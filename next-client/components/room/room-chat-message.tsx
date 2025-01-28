@@ -2,7 +2,6 @@ import { DEFAULT_AVATAR_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useRoomStore } from "@/store/room-store";
 import { RoomMessage, RoomMessageType } from "@/types/room-types";
-import { faker } from "@faker-js/faker";
 import { memo, useMemo } from "react";
 
 interface RoomChatMessageProps {

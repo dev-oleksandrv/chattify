@@ -7,7 +7,6 @@ import { RoomChat } from "./room-chat";
 import { RoomMicButton } from "./room-mic-button";
 import { RoomCamButton } from "./room-cam-button";
 import { RoomVideoPreview } from "./room-video-preview";
-import { useRoomUserStore } from "@/store/room-user-store";
 import { useRoomStore } from "@/store/room-store";
 import { RoomRemoteVideo } from "./room-remote-video";
 import { RoomGrid } from "./room-grid";
