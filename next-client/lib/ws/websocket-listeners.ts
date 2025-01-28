@@ -1,6 +1,9 @@
 import type {
+  WsChangedDeviceStatusEvent,
+  WsConnectionEstablishedEvent,
   WsJoinedBroadcastEvent,
   WsJoinedLobbyEvent,
+  WsLeavedLobbyEvent,
   WsReceiveMessageEvent,
   WsRtcReceiveAnswerEvent,
   WsRtcReceiveCandidateEvent,
@@ -8,41 +11,63 @@ import type {
 } from "./websocket-events";
 import { sendAnswerAction, sendOfferAction } from "./websocket-actions";
 import { appendRoomChatMessage } from "@/store/room-chat-store";
-import { RoomMessageType } from "@/types/room-types";
+import { RoomConnectionStatus, RoomMessageType } from "@/types/room-types";
 import {
   addRoomClient,
+  addRoomUserDetails,
   getRoomClients,
   removeRoomClient,
+  removeRoomStream,
+  removeRoomUserDetails,
+  setRoomUserDetails,
+  useRoomStore,
 } from "@/store/room-store";
 import { RTCClient } from "../classes/rtc-client";
-import { getRoomUserStream } from "@/store/room-user-store";
+import {
+  getRoomUserStream,
+  updateRoomUserConnectionStatus,
+} from "@/store/room-user-store";
 
 export const receiveMessageListener = (data: WsReceiveMessageEvent) => {
   appendRoomChatMessage({
     content: data.content,
     type: RoomMessageType.USER,
+    userId: data.userId,
   });
+};
+
+export const connectionEstablishedEvent = (
+  data: WsConnectionEstablishedEvent
+) => {
+  setRoomUserDetails(data.clients);
+  updateRoomUserConnectionStatus(RoomConnectionStatus.CONNECTION_ESTABLISHED);
 };
 
 export const joinedLobbyListener = (data: WsJoinedLobbyEvent) => {
   appendRoomChatMessage({
-    content: `User ${data.userId} joined lobby`,
+    content: `'${data.details.username}' joined lobby`,
     type: RoomMessageType.SYSTEM,
   });
+
+  addRoomUserDetails(data.details);
 };
 
-export const leavedLobbyListener = (data: WsJoinedLobbyEvent) => {
+export const leavedLobbyListener = (data: WsLeavedLobbyEvent) => {
+  const details = useRoomStore.getState().userDetails;
+  const target = details[data.userId];
+
   appendRoomChatMessage({
-    content: `User ${data.userId} leaved lobby`,
+    content: `'${target?.username ?? "N/A"}' leaved lobby`,
     type: RoomMessageType.SYSTEM,
   });
 
   removeRoomClient(data.userId);
+  removeRoomStream(data.userId);
+  removeRoomUserDetails(data.userId);
 };
 
 export const joinedBroadcastListener = (data: WsJoinedBroadcastEvent) => {
   const handle = async () => {
-    console.log("joined broadcast", data);
     const client = new RTCClient(data.userId);
     addRoomClient(data.userId, client);
 
@@ -119,4 +144,24 @@ export const receiveCandidateListener = (data: WsRtcReceiveCandidateEvent) => {
   };
 
   handle();
+};
+
+export const deviceStatusChangedListener = (
+  data: WsChangedDeviceStatusEvent
+) => {
+  const details = useRoomStore.getState().userDetails;
+
+  if (!details[data.userId]) {
+    return;
+  }
+
+  if (data.deviceType === "audio") {
+    details[data.userId].audioEnabled = data.enabled;
+  }
+
+  if (data.deviceType === "video") {
+    details[data.userId].videoEnabled = data.enabled;
+  }
+
+  setRoomUserDetails(Object.values(details));
 };

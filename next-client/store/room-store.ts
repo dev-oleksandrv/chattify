@@ -1,6 +1,6 @@
 import { client_loadRoomRequest } from "@/api/client-api";
 import { RTCClient } from "@/lib/classes/rtc-client";
-import { Room, RoomLoadingStatus } from "@/types/room-types";
+import { Room, RoomLoadingStatus, RoomUser } from "@/types/room-types";
 import { useEffect } from "react";
 import { create } from "zustand";
 
@@ -10,6 +10,7 @@ export interface RoomStore {
 
   clients: Record<number, RTCClient>;
   streams: Record<number, MediaStream>;
+  userDetails: Record<number, RoomUser>;
 
   updateRoom: (room: Room) => void;
   updateStatus: (status: RoomLoadingStatus) => void;
@@ -17,6 +18,10 @@ export interface RoomStore {
   addStream: (id: number, client: MediaStream) => void;
   removeClient: (id: number) => void;
   removeStream: (id: number) => void;
+
+  setUserDetails: (userDetails: RoomStore["userDetails"]) => void;
+  addUserDetails: (user: RoomUser) => void;
+  removeUserDetails: (userId: number) => void;
 }
 
 export const useRoomStore = create<RoomStore>((set, getState) => ({
@@ -25,6 +30,7 @@ export const useRoomStore = create<RoomStore>((set, getState) => ({
 
   clients: {},
   streams: {},
+  userDetails: {},
 
   updateRoom: (room) => set({ room }),
   updateStatus: (status) => set({ status }),
@@ -56,10 +62,26 @@ export const useRoomStore = create<RoomStore>((set, getState) => ({
     }
     set({ streams });
   },
+  setUserDetails: (userDetails) => set({ userDetails }),
+  addUserDetails: (user) =>
+    set({
+      userDetails: {
+        ...getState().userDetails,
+        [user.id]: user,
+      },
+    }),
+  removeUserDetails: (userId) => {
+    const userDetails = getState().userDetails;
+    if (userDetails[userId]) {
+      delete userDetails[userId];
+    }
+    set({ userDetails });
+  },
 }));
 
-const clearRoomStore = () =>
+export const clearRoomStore = () => {
   useRoomStore.setState(useRoomStore.getInitialState());
+};
 
 export const useRoomStoreInit = (id: number) => {
   const { status, updateRoom, updateStatus } = useRoomStore();
@@ -97,3 +119,21 @@ export const removeRoomClient = (id: number) =>
 
 export const removeRoomStream = (id: number) =>
   useRoomStore.getState().removeStream(id);
+
+export const setRoomUserDetails = (users: RoomUser[]) => {
+  const obj = users.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr.id]: curr,
+    }),
+    {}
+  );
+
+  useRoomStore.getState().setUserDetails(obj);
+};
+
+export const addRoomUserDetails = (user: RoomUser) =>
+  useRoomStore.getState().addUserDetails(user);
+
+export const removeRoomUserDetails = (userId: number) =>
+  useRoomStore.getState().removeUserDetails(userId);

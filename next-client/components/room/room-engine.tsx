@@ -7,6 +7,7 @@ import { wsManager } from "@/lib/ws/websocket";
 import environment from "@/environment";
 import { RoomUserView } from "@/types/room-types";
 import { RoomBroadcast } from "./room-broadcast";
+import { resetRoomStore } from "@/store/helpers";
 
 interface RoomEngineProps {
   token: string;
@@ -14,18 +15,15 @@ interface RoomEngineProps {
 
 export const RoomEngine = memo(function RoomEngine({ token }: RoomEngineProps) {
   const view = useRoomUserStore((state) => state.view);
-  const connectedRef = useRef(false);
 
   useEffect(() => {
-    if (!token || connectedRef.current) return;
+    if (!token) return;
 
     wsManager.connect(`${environment.wsUrl}?token=${token}`);
 
-    connectedRef.current = true;
-
     return () => {
-      console.log("close");
-      // wsManager.close();
+      wsManager.close();
+      resetRoomStore();
     };
   }, [token]);
 

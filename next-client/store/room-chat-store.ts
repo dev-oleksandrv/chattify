@@ -15,5 +15,8 @@ export const useRoomChatStore = create<RoomChatStore>((set, getState) => ({
   clear: () => set({ messages: [] }),
 }));
 
+export const clearRoomChatStore = () =>
+  useRoomChatStore.setState(useRoomChatStore.getInitialState());
+
 export const appendRoomChatMessage = (message: RoomMessage) =>
   useRoomChatStore.getState().append(message);

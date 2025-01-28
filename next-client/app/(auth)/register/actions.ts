@@ -46,7 +46,6 @@ export const registerUserAction = async (
       secure: true,
     });
   } catch (error) {
-    console.log(error);
     return {
       errors: {
         server: ["Email is already in use"],

@@ -5,12 +5,11 @@ import { DialogRenderer } from "@/components/dialogs/dialog-renderer";
 import { RoomCard } from "@/components/room/room-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { ROOM_DATA } from "@/data/room-data";
 import { Room } from "@/types/room-types";
 import { InfoIcon, Plus } from "lucide-react";
 
 const onlineRooms: Room[] = [];
-const myRooms: Room[] = ROOM_DATA;
+const myRooms: Room[] = [];
 
 export default function HomePage() {
   return (

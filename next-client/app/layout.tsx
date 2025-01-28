@@ -19,9 +19,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await verifyUserAccess();
-
-  console.log(user);
+  await verifyUserAccess();
 
   return (
     <html lang="en">

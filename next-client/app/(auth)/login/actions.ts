@@ -19,14 +19,11 @@ export const loginUserAction = async (
     password: formData.get("password")?.toString(),
   };
 
-  console.log(payload, "@@@payload");
-
   const { success, error, data } = await loginUserSchema.safeParseAsync(
     payload
   );
 
   if (!success && error) {
-    console.log("@@@", success, error, data);
     return {
       errors: error.flatten().fieldErrors,
       payload,
@@ -44,7 +41,6 @@ export const loginUserAction = async (
       secure: true,
     });
   } catch (error) {
-    console.log(error);
     return {
       errors: {
         server: ["Invalid email or password"],

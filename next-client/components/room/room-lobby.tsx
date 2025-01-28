@@ -9,13 +9,14 @@ import { RoomMicButton } from "./room-mic-button";
 import { RoomCamButton } from "./room-cam-button";
 import { RoomVideoPreview } from "./room-video-preview";
 import { useRoomUserStore } from "@/store/room-user-store";
-import { RoomUserStatus } from "@/types/room-types";
+import { RoomConnectionStatus, RoomUserStatus } from "@/types/room-types";
 import { joinBroadcastAction } from "@/lib/ws/websocket-actions";
 
 export const RoomLobby = () => {
   const status = useRoomUserStore((state) => state.status);
   const stream = useRoomUserStore((state) => state.stream);
   const isVideoEnabled = useRoomUserStore((state) => state.isVideoEnabled);
+  const connectionStatus = useRoomUserStore((state) => state.connectionStatus);
 
   const joinBroadcastHandler = () => {
     joinBroadcastAction();
@@ -39,10 +40,8 @@ export const RoomLobby = () => {
         <Card className="flex-1 mb-6">
           <CardContent className="p-6 flex flex-col items-center justify-center h-full">
             <RoomVideoPreview
-              isVideoEnabled={isVideoEnabled}
               isLoading={status === RoomUserStatus.LOCAL_STREAM_LOADING}
               isError={status === RoomUserStatus.LOCAL_STREAM_FAILED}
-              stream={stream}
             />
             <div className="flex justify-center space-x-4 mt-4">
               <RoomMicButton />
@@ -53,7 +52,10 @@ export const RoomLobby = () => {
         <Button
           size="lg"
           className="bg-indigo-600 hover:bg-indigo-700"
-          disabled={status !== RoomUserStatus.LOCAL_STREAM_READY}
+          disabled={
+            status !== RoomUserStatus.LOCAL_STREAM_READY ||
+            connectionStatus !== RoomConnectionStatus.CONNECTION_ESTABLISHED
+          }
           onClick={joinBroadcastHandler}
         >
           Join Video Room

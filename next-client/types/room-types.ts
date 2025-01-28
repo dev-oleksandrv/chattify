@@ -2,6 +2,8 @@ export interface RoomUser {
   id: number;
   username: string;
   avatarUrl: string;
+  videoEnabled: boolean;
+  audioEnabled: boolean;
 }
 
 export interface Room {
@@ -13,6 +15,7 @@ export interface Room {
 export interface RoomMessage {
   content: string;
   type: RoomMessageType;
+  userId?: number;
 }
 
 export enum RoomLoadingStatus {
@@ -38,4 +41,7 @@ export enum RoomMessageType {
   SYSTEM,
 }
 
-export enum RoomConnectionStatus {}
+export enum RoomConnectionStatus {
+  CONNECTING,
+  CONNECTION_ESTABLISHED,
+}

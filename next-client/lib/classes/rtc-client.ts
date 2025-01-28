@@ -124,6 +124,11 @@ export class RTCClient {
   private handleOnTrackEvent(event: RTCTrackEvent): void {
     console.log(`[RTCClient(${this.userId})]: track event`, event);
     const remoteStream = new MediaStream();
+    console.log(
+      event.streams[0].getAudioTracks(),
+      event.streams[0].getVideoTracks(),
+      event.streams[0].getTracks()
+    );
     event.streams[0]
       .getTracks()
       .forEach((track) => remoteStream.addTrack(track));

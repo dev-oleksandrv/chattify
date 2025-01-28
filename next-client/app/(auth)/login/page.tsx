@@ -23,8 +23,6 @@ export default function LoginPage() {
     FormData
   >(loginUserAction, {} as LoginUserActionState);
 
-  console.log(state);
-
   return (
     <Card className="w-full max-w-md">
       <CardHeader>

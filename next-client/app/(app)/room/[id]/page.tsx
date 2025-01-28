@@ -1,4 +1,5 @@
 import { handshakeWsRequest } from "@/api/api";
+import { RoomError } from "@/components/room/room-error";
 import { RoomLoader } from "@/components/room/room-loader";
 
 export default async function RoomPage({
@@ -13,7 +14,14 @@ export default async function RoomPage({
     return null;
   }
 
-  const { token } = await handshakeWsRequest(parseInt(id));
+  let token: string = "";
+
+  try {
+    const result = await handshakeWsRequest(parseInt(id));
+    token = result.token;
+  } catch (error) {
+    return <RoomError />;
+  }
 
   return <RoomLoader id={numericId} token={token} />;
 }

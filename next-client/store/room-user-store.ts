@@ -1,5 +1,10 @@
 import { disableMediaTracks, enableMediaTracks } from "@/lib/utils";
-import { RoomUserStatus, RoomUserView } from "@/types/room-types";
+import { deviceStatusChangeAction } from "@/lib/ws/websocket-actions";
+import {
+  RoomConnectionStatus,
+  RoomUserStatus,
+  RoomUserView,
+} from "@/types/room-types";
 import { useEffect } from "react";
 import { create } from "zustand";
 
@@ -9,16 +14,19 @@ interface RoomUserStore {
   view: RoomUserView;
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
+  connectionStatus: RoomConnectionStatus;
 
   updateAudioEnabled: (newValue: boolean) => void;
   updateVideoEnabled: (newValue: boolean) => void;
   updateStatus: (status: RoomUserStatus) => void;
   updateStream: (stream: MediaStream) => void;
   updateView: (view: RoomUserView) => void;
+  updateConnectionStatus: (status: RoomConnectionStatus) => void;
 }
 
 export const useRoomUserStore = create<RoomUserStore>((set) => ({
   status: RoomUserStatus.LOCAL_STREAM_LOADING,
+  connectionStatus: RoomConnectionStatus.CONNECTING,
   view: RoomUserView.LOBBY,
   stream: null,
 
@@ -30,12 +38,20 @@ export const useRoomUserStore = create<RoomUserStore>((set) => ({
   updateStatus: (status) => set({ status }),
   updateStream: (stream) => set({ stream }),
   updateView: (view) => set({ view }),
+  updateConnectionStatus: (connectionStatus) => set({ connectionStatus }),
 }));
 
 export const getRoomUserStream = () => useRoomUserStore.getState().stream;
 
-export const clearRoomUserStore = () =>
+export const clearRoomUserStore = () => {
+  const state = useRoomUserStore.getState();
+
+  if (state.stream) {
+    state.stream.getTracks().forEach((track) => track.stop());
+  }
+
   useRoomUserStore.setState(useRoomUserStore.getInitialState());
+};
 
 export const toggleRoomUserAudio = () => {
   const { updateAudioEnabled, stream, isAudioEnabled } =
@@ -49,6 +65,10 @@ export const toggleRoomUserAudio = () => {
     enableMediaTracks(stream.getAudioTracks());
   }
 
+  deviceStatusChangeAction({
+    deviceType: "audio",
+    enabled: !isAudioEnabled,
+  });
   updateAudioEnabled(!isAudioEnabled);
 };
 
@@ -64,6 +84,10 @@ export const toggleRoomUserVideo = () => {
     enableMediaTracks(stream.getVideoTracks());
   }
 
+  deviceStatusChangeAction({
+    deviceType: "video",
+    enabled: !isVideoEnabled,
+  });
   updateVideoEnabled(!isVideoEnabled);
 };
 
@@ -99,3 +123,6 @@ export const useRoomUserInit = () => {
 
 export const updateRoomUserView = (view: RoomUserView) =>
   useRoomUserStore.getState().updateView(view);
+
+export const updateRoomUserConnectionStatus = (status: RoomConnectionStatus) =>
+  useRoomUserStore.getState().updateConnectionStatus(status);

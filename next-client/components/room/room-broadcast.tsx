@@ -9,12 +9,13 @@ import { RoomCamButton } from "./room-cam-button";
 import { RoomVideoPreview } from "./room-video-preview";
 import { useRoomUserStore } from "@/store/room-user-store";
 import { useRoomStore } from "@/store/room-store";
+import { RoomRemoteVideo } from "./room-remote-video";
+import { RoomGrid } from "./room-grid";
 
 export const RoomBroadcast = () => {
-  const { stream, isVideoEnabled } = useRoomUserStore();
   const streams = useRoomStore((state) => state.streams);
 
-  console.log(streams);
+  const streamKeys = Object.keys(streams);
 
   return (
     <div className="flex md:flex-row h-[calc(100vh-7rem)] gap-4">
@@ -31,19 +32,25 @@ export const RoomBroadcast = () => {
             </Link>
           </Button>
         </div>
-        <div className="flex-1 grid grid-cols-2 gap-2 overflow-auto">
-          {Object.entries(streams).map(([id, stream]) => (
-            <div key={id} className="flex justify-center items-center">
-              <RoomVideoPreview stream={stream} />
-            </div>
-          ))}
-        </div>
+        {!streamKeys.length && (
+          <div className="flex-1 flex justify-center items-center">
+            <p>No users in video room</p>
+          </div>
+        )}
+        {streamKeys.length > 0 && (
+          <RoomGrid count={streamKeys.length}>
+            {streamKeys.map((id) => (
+              <div key={id} className="flex justify-center items-center">
+                <RoomRemoteVideo userId={+id} />
+              </div>
+            ))}
+          </RoomGrid>
+        )}
         <div className="mt-4 flex items-center justify-center gap-2">
           <div className="h-[102px] mr-4">
             <RoomVideoPreview
-              isVideoEnabled={isVideoEnabled}
-              stream={stream}
               rootClassName="h-full max-w-full w-auto"
+              isLabelShown
             />
           </div>
 

@@ -1,6 +1,7 @@
 import { appendRoomChatMessage } from "@/store/room-chat-store";
 import { wsManager } from "./websocket";
 import {
+  WsDeviceStatusChangeEvent,
   WsEventType,
   type WsBaseEvent,
   type WsRtcSendAnswerEvent,
@@ -54,3 +55,11 @@ export const sendCandidateAction = (
     candidate: event.candidate,
   });
 };
+
+export const deviceStatusChangeAction = (
+  event: ActionEvent<WsDeviceStatusChangeEvent>
+) =>
+  wsManager.send({
+    type: WsEventType.DeviceStatusChange,
+    ...event,
+  });
